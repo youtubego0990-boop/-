@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Касса</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #111418;
+    --surface: #1a1f26;
+    --surface2: #222831;
+    --surface3: #2a3240;
+    --border: #2e3a4a;
+    --accent: #f0a500;
+    --accent2: #e05c3a;
+    --green: #2ecc71;
+    --text: #e8edf3;
+    --text2: #8fa3b8;
+    --text3: #5c7a94;
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--accent);
+  }
+  header span {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 500;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    gap: 4px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 12px 8px;
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* PANELS */
+  .panel { display: none; padding: 16px 16px 0; }
+  .panel.active { display: block; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text3);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    margin-top: 4px;
+  }
+
+  /* MENU GRID */
+  .menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .menu-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .menu-item:active { transform: scale(0.96); background: var(--surface3); }
+  .menu-item.has-items {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, var(--surface2) 0%, #2a2210 100%);
+  }
+  .menu-item-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+  .menu-item-price {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .menu-item-count {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 26px;
+    height: 26px;
+    background: var(--accent);
+    color: #111;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s;
+  }
+  .menu-item.has-items .menu-item-count { opacity: 1; transform: scale(1); }
+
+  /* RECEIPT */
+  .receipt-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .receipt-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .receipt-header span { font-size: 12px; font-weight: 700; color: var(--text3); letter-spacing: 0.8px; text-transform: uppercase; }
+  .clear-btn {
+    background: none;
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .clear-btn:active { background: var(--accent2); color: #fff; }
+
+  .receipt-empty {
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--text3);
+    font-size: 14px;
+  }
+
+  .receipt-line {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+  }
+  .receipt-line:last-child { border-bottom: none; }
+  .receipt-line-name { flex: 1; font-size: 14px; font-weight: 600; color: var(--text); }
+  .receipt-line-sum { font-size: 14px; font-weight: 700; color: var(--text2); min-width: 70px; text-align: right; }
+
+  .qty-controls { display: flex; align-items: center; gap: 0; }
+  .qty-btn {
+    width: 30px; height: 30px;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    font-family: inherit;
+    font-weight: 400;
+  }
+  .qty-btn:first-child { border-radius: 8px 0 0 8px; }
+  .qty-btn:last-child { border-radius: 0 8px 8px 0; }
+  .qty-btn:active { background: var(--accent); color: #111; }
+  .qty-val {
+    width: 30px; height: 30px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: var(--accent);
+  }
+
+  .receipt-total {
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface3);
+  }
+  .receipt-total-label { font-size: 13px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; }
+  .receipt-total-sum { font-size: 26px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
+
+  /* PAYMENT */
+  .pay-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .pay-btn {
+    padding: 16px 8px;
+    border-radius: var(--radius);
+    border: 2px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .pay-btn .pay-icon { font-size: 22px; }
+  .pay-btn.active { background: var(--surface3); border-color: var(--accent); color: var(--accent); }
+  .pay-btn:active { transform: scale(0.97); }
+
+  .cash-block { margin-bottom: 16px; }
+  .input-label { font-size: 12px; font-weight: 700; color: var(--text3); margin-bottom: 6px; letter-spacing: 0.5px; }
+  .cash-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 22px;
+    font-weight: 800;
+    padding: 14px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .cash-input:focus { border-color: var(--accent); }
+  .cash-input::placeholder { color: var(--text3); }
+
+  .change-display {
+    background: linear-gradient(135deg, #1a2a1a, #122012);
+    border: 2px solid var(--green);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .change-display .change-label { font-size: 12px; font-weight: 700; color: #6bcf6b; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .change-display .change-amount { font-size: 36px; font-weight: 800; color: var(--green); letter-spacing: -1px; }
+
+  .confirm-btn {
+    width: 100%;
+    padding: 18px;
+    background: var(--green);
+    color: #0a1a0a;
+    border: none;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-bottom: 16px;
+  }
+  .confirm-btn:active { transform: scale(0.98); filter: brightness(0.9); }
+  .confirm-btn:disabled { background: var(--surface3); color: var(--text3); cursor: not-allowed; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--green);
+    color: #0a1a0a;
+    padding: 12px 24px;
+    border-radius: 40px;
+    font-weight: 800;
+    font-size: 14px;
+    z-index: 999;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* HISTORY */
+  .history-summary {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .summary-title { font-size: 12px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .summary-total { font-size: 30px; font-weight: 800; color: var(--accent); letter-spacing: -1px; margin-bottom: 10px; }
+  .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-top: 1px solid var(--border); }
+  .summary-row-label { font-size: 13px; color: var(--text2); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .summary-row-val { font-size: 15px; font-weight: 800; color: var(--text); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-cash { background: #f5a623; }
+  .dot-card { background: #4a9af5; }
+
+  .clear-history-btn {
+    width: 100%;
+    padding: 13px;
+    background: none;
+    border: 1px solid var(--accent2);
+    border-radius: var(--radius-sm);
+    color: var(--accent2);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 16px;
+  }
+  .clear-history-btn:active { background: var(--accent2); color: #fff; }
+
+  .history-list { display: flex; flex-direction: column; gap: 10px; }
+  .history-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .history-item-header {
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface3);
+  }
+  .history-time { font-size: 13px; font-weight: 700; color: var(--text2); }
+  .history-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+  .badge-cash { background: #2a1f00; color: #f5a623; border: 1px solid #f5a62340; }
+  .badge-card { background: #001a2a; color: #4a9af5; border: 1px solid #4a9af540; }
+  .history-item-body { padding: 10px 14px; }
+  .history-items-list { margin-bottom: 8px; }
+  .history-items-list li { font-size: 13px; color: var(--text2); padding: 3px 0; list-style: none; display: flex; justify-content: space-between; }
+  .history-items-list li span { color: var(--text3); }
+  .history-sum { font-size: 17px; font-weight: 800; color: var(--accent); text-align: right; }
+
+  .history-empty { text-align: center; color: var(--text3); padding: 40px 20px; font-size: 14px; line-height: 1.6; }
+  .history-empty .big { font-size: 40px; display: block; margin-bottom: 10px; }
+
+  /* NUMPAD QUICKFILL */
+  .quickfill { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .qf-btn {
+    padding: 7px 12px;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text2);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .qf-btn:active { background: var(--accent); color: #111; border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🫓 Касса</h1>
+  <span id="currentTime"></span>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('pos')">Заказ</button>
+  <button class="tab-btn" onclick="switchTab('history')">История <span id="historyBadge"></span></button>
+</div>
+
+<!-- POS PANEL -->
+<div class="panel active" id="panel-pos">
+
+  <div class="section-label" style="margin-top:14px">Меню</div>
+  <div class="menu-grid" id="menuGrid"></div>
+
+  <!-- RECEIPT -->
+  <div class="section-label">Чек</div>
+  <div class="receipt-card">
+    <div class="receipt-header">
+      <span>Позиции</span>
+      <button class="clear-btn" onclick="clearReceipt()">✕ Очистить</button>
+    </div>
+    <div id="receiptItems"><div class="receipt-empty">Нажмите на товар, чтобы добавить</div></div>
+    <div class="receipt-total">
+      <span class="receipt-total-label">Итого</span>
+      <span class="receipt-total-sum" id="totalSum">0 сом</span>
+    </div>
+  </div>
+
+  <!-- PAYMENT -->
+  <div class="section-label">Оплата</div>
+  <div class="pay-methods">
+    <button class="pay-btn" id="btn-cash" onclick="setPayMethod('cash')">
+      <span class="pay-icon">💵</span>Наличными
+    </button>
+    <button class="pay-btn" id="btn-card" onclick="setPayMethod('card')">
+      <span class="pay-icon">💳</span>Картой
+    </button>
+  </div>
+
+  <div class="cash-block" id="cashBlock" style="display:none">
+    <div class="input-label">Получено от клиента (сом)</div>
+    <input class="cash-input" type="number" inputmode="numeric" id="cashReceived" placeholder="0" oninput="calcChange()">
+    <div class="quickfill" id="quickfill"></div>
+  </div>
+
+  <div class="change-display" id="changeDisplay">
+    <div class="change-label">Сдача</div>
+    <div class="change-amount" id="changeAmount">0 сом</div>
+  </div>
+
+  <button class="confirm-btn" id="confirmBtn" onclick="confirmOrder()" disabled>
+    ✓ Оплачено
+  </button>
+</div>
+
+<!-- HISTORY PANEL -->
+<div class="panel" id="panel-history">
+  <div style="margin-top:14px"></div>
+  <div class="history-summary">
+    <div class="summary-title">Итого выручка за сегодня</div>
+    <div class="summary-total" id="summaryTotal">0 сом</div>
+    <div class="summary-row">
+      <span class="summary-row-label"><span class="dot dot-cash"></span>Наличными</span>
+      <span class="summary-row-val" id="summaryCash">0 сом</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-row-label"><span class="dot dot-card"></span>Картой</span>
+      <span class="summary-row-val" id="summaryCard">0 сом</span>
+    </div>
+  </div>
+  <button class="clear-history-btn" onclick="clearHistory()">🗑 Очистить историю за день</button>
+  <div class="section-label">Закрытые чеки</div>
+  <div class="history-list" id="historyList"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MENU = [
+  { id: 1, name: 'Манты (мясо)',    price: 50,  emoji: '🥟' },
+  { id: 2, name: 'Манты (картошка)', price: 40, emoji: '🥟' },
+  { id: 3, name: 'Нан (целый)',     price: 30,  emoji: '🫓' },
+  { id: 4, name: 'Нан (половина)', price: 20,   emoji: '🫓' },
+  { id: 5, name: 'Напиток',        price: 80,   emoji: '🥤' },
+  { id: 6, name: 'Чай',           price: 20,   emoji: '🍵' },
+];
+
+let cart = {}; // { id: qty }
+let payMethod = null;
+let history = [];
+
+// ── STORAGE ──────────────────────────────────────────────
+function todayKey() {
+  const d = new Date();
+  return `kassa_${d.getFullYear()}_${d.getMonth()}_${d.getDate()}`;
+}
+function saveHistory() {
+  localStorage.setItem(todayKey(), JSON.stringify(history));
+}
+function loadHistory() {
+  const raw = localStorage.getItem(todayKey());
+  history = raw ? JSON.parse(raw) : [];
+}
+
+// ── TIME ─────────────────────────────────────────────────
+function updateTime() {
+  const now = new Date();
+  document.getElementById('currentTime').textContent =
+    now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+// ── TABS ─────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  event.target.classList.add('active');
+  if (tab === 'history') renderHistory();
+}
+
+// ── MENU RENDER ───────────────────────────────────────────
+function renderMenu() {
+  const grid = document.getElementById('menuGrid');
+  grid.innerHTML = '';
+  MENU.forEach(item => {
+    const qty = cart[item.id] || 0;
+    const div = document.createElement('div');
+    div.className = 'menu-item' + (qty > 0 ? ' has-items' : '');
+    div.innerHTML = `
+      <div class="menu-item-count">${qty}</div>
+      <div class="menu-item-name">${item.emoji} ${item.name}</div>
+      <div class="menu-item-price">${item.price} сом</div>
+    `;
+    div.addEventListener('click', () => addItem(item.id));
+    grid.appendChild(div);
+  });
+}
+
+// ── CART ─────────────────────────────────────────────────
+function addItem(id) {
+  cart[id] = (cart[id] || 0) + 1;
+  renderAll();
+}
+function setQty(id, qty) {
+  if (qty <= 0) delete cart[id];
+  else cart[id] = qty;
+  renderAll();
+}
+function clearReceipt() {
+  cart = {};
+  payMethod = null;
+  document.getElementById('cashReceived').value = '';
+  document.getElementById('btn-cash').classList.remove('active');
+  document.getElementById('btn-card').classList.remove('active');
+  document.getElementById('cashBlock').style.display = 'none';
+  document.getElementById('changeDisplay').style.display = 'none';
+  renderAll();
+}
+function getTotal() {
+  return MENU.reduce((sum, item) => sum + (cart[item.id] || 0) * item.price, 0);
+}
+
+// ── RECEIPT RENDER ────────────────────────────────────────
+function renderReceipt() {
+  const container = document.getElementById('receiptItems');
+  const total = getTotal();
+  const items = MENU.filter(item => (cart[item.id] || 0) > 0);
+
+  if (items.length === 0) {
+    container.innerHTML = '<div class="receipt-empty">Нажмите на товар, чтобы добавить</div>';
+  } else {
+    container.innerHTML = items.map(item => {
+      const qty = cart[item.id];
+      return `
+        <div class="receipt-line">
+          <span class="receipt-line-name">${item.name}</span>
+          <div class="qty-controls">
+            <button class="qty-btn" onclick="setQty(${item.id}, ${qty - 1})">−</button>
+            <div class="qty-val">${qty}</div>
+            <button class="qty-btn" onclick="setQty(${item.id}, ${qty + 1})">+</button>
+          </div>
+          <span class="receipt-line-sum">${qty * item.price} сом</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('totalSum').textContent = total + ' сом';
+  updateQuickfill(total);
+  updateConfirmBtn();
+}
+
+function updateQuickfill(total) {
+  const container = document.getElementById('quickfill');
+  if (!total) { container.innerHTML = ''; return; }
+  const suggestions = new Set();
+  suggestions.add(total);
+  [500, 1000, 200, 100, 50].forEach(round => {
+    const v = Math.ceil(total / round) * round;
+    if (v >= total) suggestions.add(v);
+  });
+  const sorted = [...suggestions].sort((a, b) => a - b).slice(0, 5);
+  container.innerHTML = sorted.map(v =>
+    `<button class="qf-btn" onclick="setQuick(${v})">${v}</button>`
+  ).join('');
+}
+function setQuick(val) {
+  document.getElementById('cashReceived').value = val;
+  calcChange();
+}
+
+// ── PAYMENT ───────────────────────────────────────────────
+function setPayMethod(method) {
+  payMethod = method;
+  document.getElementById('btn-cash').classList.toggle('active', method === 'cash');
+  document.getElementById('btn-card').classList.toggle('active', method === 'card');
+  document.getElementById('cashBlock').style.display = method === 'cash' ? 'block' : 'none';
+  if (method === 'card') {
+    document.getElementById('changeDisplay').style.display = 'none';
+    document.getElementById('cashReceived').value = '';
+  } else {
+    calcChange();
+  }
+  updateConfirmBtn();
+}
+
+function calcChange() {
+  const total = getTotal();
+  const received = parseInt(document.getElementById('cashReceived').value) || 0;
+  const changeEl = document.getElementById('changeDisplay');
+  if (received > 0 && received > total) {
+    changeEl.style.display = 'block';
+    document.getElementById('changeAmount').textContent = (received - total) + ' сом';
+  } else {
+    changeEl.style.display = 'none';
+  }
+  updateConfirmBtn();
+}
+
+function updateConfirmBtn() {
+  const total = getTotal();
+  const btn = document.getElementById('confirmBtn');
+  if (!total || !payMethod) { btn.disabled = true; return; }
+  if (payMethod === 'card') { btn.disabled = false; return; }
+  const received = parseInt(document.getElementById('cashReceived').value) || 0;
+  btn.disabled = received < total;
+}
+
+// ── CONFIRM ───────────────────────────────────────────────
+function confirmOrder() {
+  const total = getTotal();
+  if (!total || !payMethod) return;
+  const items = MENU.filter(i => (cart[i.id] || 0) > 0).map(i => ({
+    name: i.name, qty: cart[i.id], price: i.price, sum: cart[i.id] * i.price
+  }));
+  const now = new Date();
+  const record = {
+    time: now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    items,
+    total,
+    method: payMethod,
+    id: Date.now()
+  };
+  history.unshift(record);
+  saveHistory();
+  showToast('✓ Чек закрыт — ' + total + ' сом');
+  clearReceipt();
+  updateHistoryBadge();
+}
+
+// ── TOAST ─────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── HISTORY BADGE ─────────────────────────────────────────
+function updateHistoryBadge() {
+  const badge = document.getElementById('historyBadge');
+  badge.textContent = history.length > 0 ? '(' + history.length + ')' : '';
+}
+
+// ── HISTORY RENDER ────────────────────────────────────────
+function renderHistory() {
+  const cashTotal = history.filter(h => h.method === 'cash').reduce((s, h) => s + h.total, 0);
+  const cardTotal = history.filter(h => h.method === 'card').reduce((s, h) => s + h.total, 0);
+  const grandTotal = cashTotal + cardTotal;
+  document.getElementById('summaryTotal').textContent = grandTotal + ' сом';
+  document.getElementById('summaryCash').textContent = cashTotal + ' сом';
+  document.getElementById('summaryCard').textContent = cardTotal + ' сом';
+
+  const list = document.getElementById('historyList');
+  if (history.length === 0) {
+    list.innerHTML = `<div class="history-empty">
+      <span class="big">📋</span>
+      Нет закрытых чеков за сегодня.<br>Продажи появятся здесь после оплаты.
+    </div>`;
+    return;
+  }
+  list.innerHTML = history.map(rec => `
+    <div class="history-item">
+      <div class="history-item-header">
+        <span class="history-time">🕐 ${rec.time}</span>
+        <span class="history-badge ${rec.method === 'cash' ? 'badge-cash' : 'badge-card'}">
+          ${rec.method === 'cash' ? '💵 Наличные' : '💳 Карта'}
+        </span>
+      </div>
+      <div class="history-item-body">
+        <ul class="history-items-list">
+          ${rec.items.map(i => `<li>${i.name} × ${i.qty} <span>${i.sum} сом</span></li>`).join('')}
+        </ul>
+        <div class="history-sum">${rec.total} сом</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── CLEAR HISTORY ─────────────────────────────────────────
+function clearHistory() {
+  if (!confirm('Удалить всю историю продаж за сегодня?\n\nЭто действие необратимо.')) return;
+  history = [];
+  saveHistory();
+  updateHistoryBadge();
+  renderHistory();
+  showToast('История очищена');
+}
+
+// ── MAIN RENDER ───────────────────────────────────────────
+function renderAll() {
+  renderMenu();
+  renderReceipt();
+}
+
+// ── INIT ─────────────────────────────────────────────────
+loadHistory();
+updateHistoryBadge();
+renderAll();
+</script>
+</body>
+</html>
